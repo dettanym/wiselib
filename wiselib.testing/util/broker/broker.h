@@ -1,18 +1,17 @@
 
 #ifndef BROKER_H
 #define BROKER_H
-
+#define STRINGS 3 
 #include <util/pstl/int_dictionary.h>
 #include <util/delegates/delegate.hpp>
 
 namespace wiselib {
-	
-	template<
-		typename OsModel_P,
-		typename Bitmask_P
-	>
+	template<typename OsModel_P,typename Bitmask_P>
 	class BrokerTuple {
-		// {{{
+		// 
+		private:
+			char *spo_[STRINGS];
+			bitmask_t bitmask_;
 		public:
 			typedef OsModel_P OsModel;
 			typedef typename OsModel::block_data_t block_data_t;
@@ -20,30 +19,30 @@ namespace wiselib {
 			typedef Bitmask_P bitmask_t;
 			typedef BrokerTuple<OsModel, bitmask_t> self_type;
 			
-			enum {
-				STRINGS = 3,
-				SIZE = 4
-			};
+			enum 	{
+				// 	STRINGS = 3,  -- changed it to a 
+					SIZE = 4
+				};
 			
 			enum {
 				COL_SUBJECT = 0, COL_PREDICATE = 1, COL_OBJECT = 2,
 				COL_BITMASK = 3
 			};
 			
-			BrokerTuple() { // : bitmask_(0) {
-				//for(size_type i=0; i<STRINGS; i++) {
-					//spo_[i] = 0;
-				//}
-				memset(this, 0, sizeof(BrokerTuple));
-			}
+			// constructor
+			BrokerTuple() { memset(this, 0, sizeof(BrokerTuple));}
 			
+			// over-riding the default constructor- shown above (??)
 			BrokerTuple(const BrokerTuple& other) { *this = other; }
 			
+			// GET and SET functions for bitmasks
 			bitmask_t bitmask() { return bitmask_; }
+			
 			void set_bitmask(bitmask_t bm) {
 				bitmask_ = bm;
 			}
 			
+			// 
 			void free_deep(size_t i) {
 					if(i >= 0 && i < STRINGS && spo_[i]) {
 						get_allocator().free_array(spo_[i]);
@@ -91,6 +90,8 @@ namespace wiselib {
 				spo_[i] = 0;
 				spo_[i] = reinterpret_cast<char*>((typename ::Uint<sizeof(char*)>::t)k);
 			}
+			
+			// Set the SPO, bitmask for the entry
 			void set(char* subject, char* predicate, char* object, bitmask_t bitmask) {
 				spo_[0] = subject;
 				spo_[1] = predicate;
@@ -161,10 +162,7 @@ namespace wiselib {
 				return 0;
 			}
 			
-		private:
-			char *spo_[STRINGS];
-			bitmask_t bitmask_;
-		// }}}
+
 	};
 	
 	
@@ -173,6 +171,7 @@ namespace wiselib {
 	 * - use BrokerTuple as tupletype
 	 * - use BrokerTuple::compare as data comparator (yes, please manually set it, do not use the default!)
 	 */
+	 // includes methods to subscribe, desubscribe and query the records in the tuplestore
 	template<
 		typename OsModel_P,
 		typename TupleStore_P,
@@ -224,11 +223,13 @@ namespace wiselib {
 				tuple_store_ = ts;
 			}
 			
+			// Subscription
 			template<class T, void (T::*TMethod)(document_name_t)>
 			subscription_id_t subscribe(T *obj_pnt) {
 				return subscriptions_.insert(subscription_callback_t::template from_method<T, TMethod>(obj_pnt));
 			}
 			
+			// Unsubscription
 			void unsubscribe(subscription_id_t id) {
 				subscriptions_.erase(id);
 			}
