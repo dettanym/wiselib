@@ -6,6 +6,10 @@
 #include <util/delegates/delegate.hpp>
 
 namespace wiselib {
+	// For: 
+	// template classes see: https://msdn.microsoft.com/en-us/library/ffef594x.aspx and 
+	//  instantiation of template classes, see: https://msdn.microsoft.com/en-us/library/7y5ca42y.aspx 
+	
 	template<typename OsModel_P,typename Bitmask_P>
 	class BrokerTuple {
 		// 
@@ -20,7 +24,7 @@ namespace wiselib {
 			typedef BrokerTuple<OsModel, bitmask_t> self_type;
 			
 			enum 	{
-				// 	STRINGS = 3,  -- changed it to a 
+				// 	STRINGS = 3,  -- changed it to a global, coz i moved the private attributes up..
 					SIZE = 4
 				};
 			
